@@ -1,4 +1,3 @@
--- Advanced Legit Loading Screen Script (Client-Side)
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
@@ -6,118 +5,74 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Hide in-game GUI (inventory, health, leaderboard, etc.)
+-- Hide built-in UI
 StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 
--- Create GUI
+-- GUI setup
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "LegitLoadingScreen"
-screenGui.ResetOnSpawn = false
+screenGui.Name = "RestartScreen"
 screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
 -- Background
 local bg = Instance.new("Frame")
 bg.Size = UDim2.new(1, 0, 1, 0)
-bg.Position = UDim2.new(0, 0, 0, 0)
-bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-bg.BackgroundTransparency = 1
+bg.BackgroundColor3 = Color3.new(0, 0, 0)
 bg.Active = true
-bg.ZIndex = 10
+bg.ZIndex = 1
 bg.Parent = screenGui
-TweenService:Create(bg, TweenInfo.new(1), {BackgroundTransparency = 0}):Play()
 
--- Username & Fake Server ID Label
-local infoLabel = Instance.new("TextLabel", bg)
-infoLabel.Size = UDim2.new(1, 0, 0, 30)
-infoLabel.Position = UDim2.new(0, 0, 0.05, 0)
-infoLabel.BackgroundTransparency = 1
-infoLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-infoLabel.TextScaled = true
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.Text = "User: " .. player.Name .. " | Server ID: S-" .. math.random(100000,999999) .. "-" .. math.random(1000,9999)
+-- Plug Image
+local image = Instance.new("ImageLabel")
+image.Size = UDim2.new(0, 200, 0, 200)
+image.Position = UDim2.new(0.5, -100, 0.35, -100)
+image.BackgroundTransparency = 1
+image.Image = "rbxassetid://73366367355295" -- 🔁 Replace with real decal asset ID
+image.ZIndex = 2
+image.Parent = bg
 
--- Center status message
-local label = Instance.new("TextLabel", bg)
-label.Size = UDim2.new(1, 0, 0, 60)
-label.Position = UDim2.new(0, 0, 0.45, 0)
-label.BackgroundTransparency = 1
-label.TextColor3 = Color3.fromRGB(255, 255, 255)
-label.TextScaled = true
-label.Font = Enum.Font.GothamBold
-label.Text = "Initializing..."
+-- Title Text
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 60)
+title.Position = UDim2.new(0, 0, 0.65, 0)
+title.BackgroundTransparency = 1
+title.Text = "We're restarting Grow A Garden!"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBlack
+title.ZIndex = 2
+title.Parent = bg
 
--- Progress % Label
-local percentLabel = Instance.new("TextLabel", bg)
-percentLabel.Size = UDim2.new(1, 0, 0, 40)
-percentLabel.Position = UDim2.new(0, 0, 0.62, 0)
-percentLabel.BackgroundTransparency = 1
-percentLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-percentLabel.TextScaled = true
-percentLabel.Font = Enum.Font.GothamBold
-percentLabel.Text = "0%"
+-- Subtitle Text
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1, 0, 0, 40)
+subtitle.Position = UDim2.new(0, 0, 0.72, 0)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "Please wait while we redirect you..."
+subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+subtitle.TextScaled = true
+subtitle.Font = Enum.Font.Gotham
+subtitle.ZIndex = 2
+subtitle.Parent = bg
 
--- Progress bar container
-local barFrame = Instance.new("Frame", bg)
-barFrame.Size = UDim2.new(0.6, 0, 0.04, 0)
-barFrame.Position = UDim2.new(0.2, 0, 0.55, 0)
-barFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-barFrame.BorderSizePixel = 0
-barFrame.ZIndex = 11
-Instance.new("UICorner", barFrame).CornerRadius = UDim.new(0, 6)
-
--- Progress fill
-local fill = Instance.new("Frame", barFrame)
-fill.Size = UDim2.new(0, 0, 1, 0)
-fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-fill.BorderSizePixel = 0
-fill.ZIndex = 12
-Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 6)
-
--- Loading spinner
+-- OPTIONAL: Spinner
 local spinner = Instance.new("ImageLabel", bg)
-spinner.Size = UDim2.new(0, 60, 0, 60)
-spinner.Position = UDim2.new(0.5, -30, 0.75, 0)
+spinner.Size = UDim2.new(0, 40, 0, 40)
+spinner.Position = UDim2.new(0.5, -20, 0.85, 0)
 spinner.BackgroundTransparency = 1
-spinner.Image = "rbxassetid://1095708" -- Roblox's built-in loading circle image
-spinner.ZIndex = 15
+spinner.Image = "rbxassetid://1095708" -- Roblox default spinner image
+spinner.ZIndex = 3
 
--- Spinner rotation
+-- Spinner rotation logic
 local angle = 0
 RunService.RenderStepped:Connect(function()
     angle = (angle + 3) % 360
     spinner.Rotation = angle
 end)
 
--- Loading messages
-local messages = {
-    "Finding server to hop...",
-    "Locating Old server...",
-    "Searching legacy server list...",
-    "Pinging alternate regions...",
-    "Retrying connection...",
-    "Scanning deep archive servers...",
-    "Still looking for Old Server...",
-    "Final attempt in progress..."
-}
-
--- Tween progress bar (10 min = 600s)
-TweenService:Create(fill, TweenInfo.new(600, Enum.EasingStyle.Linear), {
-    Size = UDim2.new(1, 0, 1, 0)
-}):Play()
-
--- Update progress every second
-task.spawn(function()
-    for i = 1, 600 do
-        local progress = math.floor((i / 600) * 100)
-        percentLabel.Text = progress .. "%"
-        if i % 10 == 0 then
-            label.Text = messages[((i // 10 - 1) % #messages) + 1]
-        end
-        wait(1)
-    end
-
-    -- Restore GUI and kick after timeout
+-- OPTIONAL: Auto kick after 10 seconds
+task.delay(10, function()
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-    player:Kick("Couldn't find another old server with Candy Blossom. Please try rejoining later.")
+    player:Kick("Servers are restarting... Please rejoin later.")
 end)

